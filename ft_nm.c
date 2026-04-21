@@ -1,71 +1,122 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<stdlib.h>
-#include<fcntl.h>
-#include<string.h>
-#include<sys/mman.h>
-#include<sys/types.h>
-#include<sys/stat.h>
-#include<elf.h>
-#include<ctype.h>
-#include"libft/libft.h"
-#include"libft/get_next_line_bonus.h"
+#include "nm.h"
 
-void	hexaton(char *hexa, size_t len)
+unsigned long	trueSymbSize(Elf64_Sym *symtab, unsigned long nbr_entry)
 {
-	size_t	i = 0;
-	while (i <= len / 2)
+	unsigned long	size = 0;
+
+	for (unsigned long i = 1; i < nbr_entry; i++)
 	{
-		char c = hexa[i];
-		hexa[i] = hexa[len - i];
-		hexa[len - i] = c;
-		i++;
+		if (symtab[i].st_info != 4)
+			size++;
 	}
+	return (size);
 }
 
-char *symbValueFormat(uint64_t symbValue)
+t_symbol	**symbCreate(Elf64_Sym *symtab, Elf64_Sym *strtab, unsigned long nbr_entry)
 {
-	char set[] = "0123456789abcdef";
-	char sample[100];
-	char *ret;
+	t_symbol **ret = ft_calloc(trueSymbSize(symtab, nbr_entry), sizeof(t_symbol *));
+	if (!ret)
+		return (NULL);
 
-	int i = 0;
-	uint64_t val = symbValue;
-	while (val)
+	unsigned long ret_idx = 0;
+	
+	for (unsigned long i = 1; i < nbr_entry; i++)
 	{
-		uint64_t reste = val % 16;
-		sample[i++] = set[reste];
-		val /= 16;
-	}
-	if (i == 0)
-		return("");
-	hexaton(sample, i - 1);
-	if (i < 16)
-	{
-		ret = calloc(17, sizeof(char));
-		if (!ret)
-			return (NULL);
-		int r_idx = 0;
-		int s_idx = 0;
-		while (r_idx < 16)
+		if (symtab[i].st_info != 4)
 		{
-			if (r_idx < 16 - i)
-				ret[r_idx++] = '0';
-			else
-				ret[r_idx++] = sample[s_idx++];
+			ret[ret_idx] = ft_calloc(1, sizeof(t_symbol));
+			if (!ret[ret_idx])
+				return (NULL);
+			ret[ret_idx]->name = ft_strdup((char *)strtab + symtab[i].st_name);
+			if (!(ret[ret_idx]->name))
+				return (NULL);
+			ret[ret_idx]->value = symbValueFormat(symtab[i].st_value);
+			ret[ret_idx]->info = symtab[i].st_info;
+			ret[ret_idx]->shndx = symtab[i].st_shndx;
+			ret_idx++;
 		}
-		return(ret);
 	}
-	else
-		ret = ft_strdup(sample);
 	return (ret);
+}
+
+// char            print_type(t_symbol *sym, Elf64_Shdr *shdr)
+// {
+// 	char  c;
+
+// 	if (ELF64_ST_BIND(sym->info) == STB_GNU_UNIQUE)
+// 	c = 'u';
+// 	else if (ELF64_ST_BIND(sym->info) == STB_WEAK)
+// 	{
+// 		c = 'W';
+// 		if (sym->shndx == SHN_UNDEF)
+// 		c = 'w';
+// 	}
+// 	else if (ELF64_ST_BIND(sym->info) == STB_WEAK && ELF64_ST_TYPE(sym->info) == STT_OBJECT)
+// 	{
+// 		c = 'V';
+// 		if (sym->shndx == SHN_UNDEF)
+// 		c = 'v';
+// 	}
+// 	else if (sym->shndx == SHN_UNDEF)
+// 	c = 'U';
+// 	else if (sym->shndx == SHN_ABS)
+// 	c = 'A';
+// 	else if (sym->shndx == SHN_COMMON)
+// 	c = 'C';
+// 	else if (shdr[sym->shndx].sh_type == SHT_NOBITS
+// 		&& shdr[sym->shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+// 	c = 'B';
+// 	else if (shdr[sym->shndx].sh_type == SHT_PROGBITS
+// 		&& shdr[sym->shndx].sh_flags == SHF_ALLOC)
+// 	c = 'R';
+// 	else if (shdr[sym->shndx].sh_type == SHT_PROGBITS
+// 		&& shdr[sym->shndx].sh_flags == (SHF_ALLOC | SHF_WRITE))
+// 	c = 'D';
+// 	else if (shdr[sym->shndx].sh_type == SHT_PROGBITS
+// 		&& shdr[sym->shndx].sh_flags == (SHF_ALLOC | SHF_EXECINSTR))
+// 	c = 'T';
+// 	else if (shdr[sym->shndx].sh_type == SHT_DYNAMIC)
+// 	c = 'D';
+// 	else
+// 	c = '?';
+// 	if (ELF64_ST_BIND(sym->info) == STB_LOCAL && c != '?')
+// 	c += 32;
+// 	return c;
+// }
+
+char	symbType(t_symbol *symb, Elf64_Shdr *sections)
+{
+	char c = ' ';
+
+	Elf64_Shdr sec = sections[symb->shndx];
+	if (sec.sh_type == SHT_NOBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.bss
+		c = 'B';
+	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.data ou .data1
+		c = 'D';
+	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC) // .rodata .rodata1
+		c = 'R';
+	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // .text
+		c = 'T';
+	else if (sec.sh_type == SHT_DYNAMIC)
+		c = 'D';
+	else if (sec.sh_type == SHT_INIT_ARRAY)
+		c = 'D';
+	else if (sec.sh_type == SHT_NOTE)
+		c = 'R';
+	else
+		c = 'U';
+
+	if (ELF64_ST_BIND(symb->info) == STB_WEAK)
+		c = 'W';
+
+	if (c != ' ' && ELF64_ST_BIND(symb->info) == STB_LOCAL)
+		c += 32;
+	// printf ("\nsh_type : %d, sh_flags : %ld, weak local :%d, weak global: %d\n", sec.sh_type, sec.sh_flags, (ELF64_ST_BIND(symb->info) == (STB_WEAK | STB_LOCAL)), (ELF64_ST_BIND(symb->info) == (STB_WEAK | STB_GLOBAL)));
+	return (c);
 }
 
 int main(void)
 {
-	// uint64_t nbr = 9957845147789;
-	// printf("%s\n", symbValueFormat(nbr));
-	// return (0);
 	struct stat fdstat;
 
 	int fd = open("a.out", O_RDONLY);
@@ -104,20 +155,43 @@ int main(void)
 
 	for (int i = 0; i < header->e_shnum; i++)
 	{
-		if (!strcmp((char *)shstrtab + sections[i].sh_name, ".strtab"))
+		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".strtab", ft_strlen(".strtab")))
 			strtab = map_start + sections[i].sh_offset;
-		if (!strcmp((char *)shstrtab + sections[i].sh_name, ".symtab"))
+		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".symtab", ft_strlen(".symtab")))
 		{
 			symtab = map_start + sections[i].sh_offset;
 			nbr_entry = sections[i].sh_size / sections[i].sh_entsize;
 		}
 	}
 
-	for (unsigned long i = 1; i < nbr_entry; i++)
+	t_symbol **symb = symbCreate(symtab, strtab, nbr_entry);
+	if (!symb)
 	{
-		if (symtab[i].st_info != 4)
-			printf("%16s %d %s\n", symbValueFormat(symtab[i].st_value), ELF64_ST_TYPE(symtab[i].st_info), (char *)strtab + symtab[i].st_name);
+		printf("symbcreate error");
+		return (0);
 	}
+
+	unsigned long i = 0;
+	unsigned long trueSize = trueSymbSize(symtab, nbr_entry);
+	sortSymb(symb, trueSize);
+	while(i < trueSize)
+	{
+		char c = '0';
+		
+		c = symbType(symb[i], sections);
+		
+		printf("%16s %c %s\n", symb[i]->value, c, symb[i]->name);
+		i++;
+	}
+
+	for (unsigned long j = 0; j < trueSize; j++)
+	{
+		free(symb[j]->name);
+		if (symb[j]->value)
+			free(symb[j]->value);
+		free(symb[j]);
+	}
+	free(symb);
 
 	munmap(map_start, fdstat.st_size);
 	return (0);

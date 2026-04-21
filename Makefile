@@ -2,7 +2,7 @@ NAME = ft_nm
 
 CC = cc -Wall -Werror -Wextra
 
-SRC = ft_nm.c
+SRC = ft_nm.c convertFormat.c sortSymb.c
 
 OBJ = $(SRC:%.c=%.o)
 
