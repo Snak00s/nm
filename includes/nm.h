@@ -51,5 +51,6 @@ char			symbType32(t_symbol32 *symb, Elf32_Shdr *sections);
 char			*strDecapitalize(char *str);
 void			hexaton(char *hexa, size_t len);
 void			swapSymb(void **symb1, void **symb2);
+int				ft_strncmpletter(const char *s1, const char *s2, size_t n);
 
 #endif

@@ -10,7 +10,8 @@ void	sortSymb64(t_symbol64 **symb, unsigned long size)
 		{
 			char *si = symb[i]->lowTrimName;
 			char *sj = symb[j]->lowTrimName;
-			if (ft_strncmp(si, sj, ft_strlen(si)) > 0)
+			int cmp = ft_strncmpletter(si, sj, ft_strlen(si));
+			if (cmp > 0)
 				swapSymb((void *)&symb[i], (void *)&symb[j]);
 			j++;
 		}

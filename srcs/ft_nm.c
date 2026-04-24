@@ -85,6 +85,7 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start)
 			nbr_entry = sections[i].sh_size / sections[i].sh_entsize;
 		}
 	}
+
 	t_symbol32 **symb = symbCreate32(symtab, strtab, nbr_entry);
 	if (!symb)
 	{
@@ -121,7 +122,6 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start)
 		free(symb[j]);
 	}
 	free(symb);
-	return (0);
 	return (0);
 }
 
