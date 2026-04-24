@@ -54,6 +54,7 @@ int nmElf64(Elf64_Ehdr *header, void *map_start)
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
 		free(symb[j]->name);
+		free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);
@@ -114,6 +115,7 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start)
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
 		free(symb[j]->name);
+		free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);

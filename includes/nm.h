@@ -16,6 +16,7 @@
 
 typedef struct symbol64 {
 	char			*name;
+	char			*lowTrimName;
 	char			*value;
 	unsigned char	info;
 	Elf64_Section	shndx;
@@ -23,6 +24,7 @@ typedef struct symbol64 {
 
 typedef struct symbol32 {
 	char			*name;
+	char			*lowTrimName;
 	char			*value;
 	unsigned char	info;
 	Elf32_Section	shndx;

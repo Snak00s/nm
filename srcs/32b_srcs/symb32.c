@@ -32,6 +32,9 @@ t_symbol32	**symbCreate32(Elf32_Sym *symtab, Elf32_Sym *strtab, unsigned long nb
 			ret[ret_idx]->name = ft_strdup((char *)strtab + symtab[i].st_name);
 			if (!(ret[ret_idx]->name))
 				return (NULL);
+			ret[ret_idx]->lowTrimName = strDecapitalize(ft_strtrim(ret[ret_idx]->name, "_"));
+			if (!(ret[ret_idx]->lowTrimName))
+				return (NULL);
 			ret[ret_idx]->value = symbValueFormat32(symtab[i].st_value);
 			if (symtab[i].st_value != 0 && !ret[ret_idx]->value)
 				return (NULL);
