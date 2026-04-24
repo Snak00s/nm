@@ -1,10 +1,20 @@
 NAME = ft_nm
 
-CC = cc -Wall -Werror -Wextra
+CC = cc -Wall -Werror -Wextra -g -Iincludes/
 
-SRC = ft_nm.c convertFormat.c sortSymb.c
+SRCS = srcs/ft_nm.c \
+		srcs/utils.c \
+		srcs/64b_srcs/convertFormat64.c \
+		srcs/64b_srcs/sortSymb64.c \
+		srcs/64b_srcs/symb64.c \
+		srcs/64b_srcs/symbType64.c \
+		srcs/32b_srcs/convertFormat32.c \
+		srcs/32b_srcs/sortSymb32.c \
+		srcs/32b_srcs/symb32.c \
+		srcs/32b_srcs/symbType32.c
 
-OBJ = $(SRC:%.c=%.o)
+OBJ_DIR = obj
+OBJ = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 LIBFT_DIR = libft/
 
@@ -12,7 +22,8 @@ LIBFT = $(LIBFT_DIR)libft.a
 
 all: $(NAME)
 
-%.o: %.c
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) -c $< -o $@
 
 $(LIBFT) :
@@ -25,6 +36,7 @@ $(NAME): $(OBJ) $(LIBFT)
 clean:
 	@make -sC $(LIBFT_DIR) clean
 	rm -f $(OBJ)
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	@make -sC $(LIBFT_DIR) fclean
