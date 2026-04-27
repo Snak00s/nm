@@ -6,7 +6,7 @@
 /*   By: tpinton <tpinton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:03:38 by tpinton           #+#    #+#             */
-/*   Updated: 2024/11/22 13:45:48 by tpinton          ###   ########.fr       */
+/*   Updated: 2026/04/27 16:21:26 by tpinton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ char	*ft_strrchr(const char *s, int c);
 char	*ft_strnstr(const char *big, const char *litle, size_t len);
 char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoin_free(char *s1, char const *s2);
 char	*ft_strdup(const char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_itoa(int n);
