@@ -1,7 +1,14 @@
-#include<unistd.h>
+#include"omg.h"
 
 int main(void)
 {
-	write(1, "feur\n",6);
+	srand(time(0));
+	int i = 0;
+
+	int max = rand() % 100;
+	while (i < max)
+	{
+		printRand();
+	}
 	return (0);
 }

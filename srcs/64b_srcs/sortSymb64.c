@@ -13,6 +13,13 @@ void	sortSymb64(t_symbol64 **symb, unsigned long size)
 			int cmp = ft_strncmpletter(si, sj, ft_strlen(si));
 			if (cmp > 0)
 				swapSymb((void *)&symb[i], (void *)&symb[j]);
+			else if (cmp == 0)
+			{
+				if (cmpType(symb[i]->type, symb[j]->type))
+					swapSymb((void *)&symb[i], (void *)&symb[j]);
+				else if ((symb[i]->type == symb[j]->type) && (symb[i]->rawValue > symb[j]->rawValue))
+					swapSymb((void *)&symb[i], (void *)&symb[j]);
+			}
 			j++;
 		}
 		i++;

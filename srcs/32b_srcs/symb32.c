@@ -13,7 +13,7 @@ unsigned long	trueSymbSize32(Elf32_Sym *symtab, unsigned long nbr_entry)
 	return (size);
 }
 
-t_symbol32	**symbCreate32(Elf32_Sym *symtab, Elf32_Sym *strtab, unsigned long nbr_entry)
+t_symbol32	**symbCreate32(Elf32_Sym *symtab, Elf32_Sym *strtab, Elf32_Shdr *sections, unsigned long nbr_entry)
 {
 	t_symbol32 **ret = ft_calloc(trueSymbSize32(symtab, nbr_entry), sizeof(t_symbol32 *));
 	if (!ret)
@@ -38,8 +38,10 @@ t_symbol32	**symbCreate32(Elf32_Sym *symtab, Elf32_Sym *strtab, unsigned long nb
 			ret[ret_idx]->value = symbValueFormat32(symtab[i].st_value);
 			if (symtab[i].st_value != 0 && !ret[ret_idx]->value)
 				return (NULL);
+			ret[ret_idx]->rawValue = symtab[i].st_value;
 			ret[ret_idx]->info = symtab[i].st_info;
 			ret[ret_idx]->shndx = symtab[i].st_shndx;
+			ret[ret_idx]->type = symbType32(ret[ret_idx], sections);
 			ret_idx++;
 		}
 	}

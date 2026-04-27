@@ -24,7 +24,7 @@ int nmElf64(Elf64_Ehdr *header, void *map_start)
 		}
 	}
 
-	t_symbol64 **symb = symbCreate64(symtab, strtab, nbr_entry);
+	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry);
 	if (!symb)
 	{
 		write(2, "symbCreate64 error.\n", 19);
@@ -36,15 +36,12 @@ int nmElf64(Elf64_Ehdr *header, void *map_start)
 	sortSymb64(symb, trueSize);
 	while(i < trueSize)
 	{
-		char c;
-
-		c = symbType64(symb[i], sections);
-		if (c != 'w' && c != 'W' && c != 'U')
+		if (symb[i]->type != 'w' && symb[i]->type != 'W' && symb[i]->type != 'U')
 			!symb[i]->value ? write(1, "0000000000000000", 16) : write(1, symb[i]->value, 16);
 		else
 			!symb[i]->value ? write(1, "                ", 16) : write(1, symb[i]->value, 16);
 		write(1, " ", 1);
-		write(1, &c, 1);
+		write(1, &symb[i]->type, 1);
 		write(1, " ", 1);
 		write(1, symb[i]->name, ft_strlen(symb[i]->name));
 		write(1, "\n", 1);
@@ -86,10 +83,10 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start)
 		}
 	}
 
-	t_symbol32 **symb = symbCreate32(symtab, strtab, nbr_entry);
+	t_symbol32 **symb = symbCreate32(symtab, strtab, sections, nbr_entry);
 	if (!symb)
 	{
-		write(2, "symbCreate64 error.\n", 19);
+		write(2, "symbCreate32 error.\n", 19);
 		return (1);
 	}
 
@@ -98,15 +95,12 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start)
 	sortSymb32(symb, trueSize);
 	while(i < trueSize)
 	{
-		char c;
-
-		c = symbType32(symb[i], sections);
-		if (c != 'w' && c != 'W' && c != 'U')
+		if (symb[i]->type != 'w' && symb[i]->type != 'W' && symb[i]->type != 'U')
 			!symb[i]->value ? write(1, "00000000", 8) : write(1, symb[i]->value, 8);
 		else
 			!symb[i]->value ? write(1, "        ", 8) : write(1, symb[i]->value, 8);
 		write(1, " ", 1);
-		write(1, &c, 1);
+		write(1, &symb[i]->type, 1);
 		write(1, " ", 1);
 		write(1, symb[i]->name, ft_strlen(symb[i]->name));
 		write(1, "\n", 1);
@@ -157,6 +151,7 @@ int main(int argc, char **argv)
 	if (close(fd) == -1)
 	{
 		perror("close");
+		munmap(map_start, fdstat.st_size);
 		return (1);
 	}
 
