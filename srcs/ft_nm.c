@@ -155,27 +155,30 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 	int fd = open(filename, O_RDONLY);
 	if (fd == -1)
 	{
-		perror("open");
-		return (1);
+		char *error = ft_strjoin("ft_nm: \'", filename);
+		error = ft_strjoin_free(error, "\'");
+		perror(error);
+		free(error);
+		exit(1);
 	}
 
 	if (fstat(fd, &fdstat) == -1)
 	{
 		perror("fstat");
-		return (1);
+		exit(1);
 	}
 
 	void *map_start = mmap(NULL, fdstat.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (map_start == MAP_FAILED)
 	{
 		perror("mmap");
-		return (1);
+		exit(1);
 	}
 	if (close(fd) == -1)
 	{
 		perror("close");
 		munmap(map_start, fdstat.st_size);
-		return (1);
+		exit(1);
 	}
 
 	Elf64_Ehdr	*header = (Elf64_Ehdr *)map_start;
@@ -191,7 +194,7 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 	if (munmap(map_start, fdstat.st_size) == -1)
 	{
 		perror("munmap");
-		return(1);
+		exit(1);
 	}
 	return (0);
 }
@@ -203,16 +206,26 @@ int main(int argc, char **argv)
 	int *file_idx = NULL;
 	char *flagList = NULL;
 
+	char flagError[] = "ft_nm: invalid option\n \
+Usage: nm [option(s)] [file(s)]\n \
+ List symbols in [file(s)] (a.out by default).\n \
+ The options are:\n \
+  -a,	Display debugger-only symbols\n \
+  -g,	Display only external symbols\n \
+  -p,	Do not sort the symbols\n \
+  -r,	Reverse the sense of the sort\n \
+  -u,	Display only undefined symbols\n";
+
 	file_idx = ft_calloc(argc, sizeof(int));
 	if (!file_idx)
-		return (0);
+		exit(1);
 
 	if (initWithArgs(&flagList, file_idx, &nbrFile, argv, argc) == 0)
 	{
 		free(flagList);
 		free(file_idx);
-		write(2, "Invalid flag\n", 14);
-		return (0);
+		write(2, flagError, ft_strlen(flagError));
+		exit(1);
 	}
 
 	int i = 0;
