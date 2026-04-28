@@ -8,10 +8,12 @@ SRCS = srcs/ft_nm.c \
 		srcs/64b_srcs/sortSymb64.c \
 		srcs/64b_srcs/symb64.c \
 		srcs/64b_srcs/symbType64.c \
+		srcs/64b_srcs/print64.c \
 		srcs/32b_srcs/convertFormat32.c \
 		srcs/32b_srcs/sortSymb32.c \
 		srcs/32b_srcs/symb32.c \
-		srcs/32b_srcs/symbType32.c
+		srcs/32b_srcs/symbType32.c \
+		srcs/32b_srcs/print32.c
 
 OBJ_DIR = obj
 OBJ = $(SRCS:%.c=$(OBJ_DIR)/%.o)

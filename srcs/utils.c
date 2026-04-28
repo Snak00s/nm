@@ -69,3 +69,55 @@ int		cmpType(unsigned char c1, unsigned char c2)
 		return (1);
 	return (0);
 }
+
+int		checkFlag(char c, char *flagList)
+{
+	int i = 0;
+
+	while (flagList && flagList[i])
+	{
+		if (flagList[i] == c)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+void	checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag)
+{
+	int i = 0;
+
+	while (flagList && flagList[i])
+	{
+		char c = flagList[i];
+		switch (c)
+		{
+		case 'a': *aFlag = 1;
+			break;
+		case 'u': *uFlag = 1;
+			break;
+		case 'g': *gFlag = 1;
+			break;
+		case 'r': *rFlag = 1;
+			break;
+		default:
+			break;
+		}
+		i++;
+	}
+}
+
+int		applyFlags(unsigned char c, int gFlag, int uFlag)
+{
+	if (uFlag == 1)
+	{
+		if (c != 'U' && c != 'w')
+			return (1);
+	}
+	else if (gFlag == 1)
+	{
+		if (c >= 97 && c <= 122 && c != 'w')
+			return (1);
+	}
+	return (0);
+}

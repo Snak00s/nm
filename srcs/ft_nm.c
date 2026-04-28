@@ -1,104 +1,6 @@
 #include "nm.h"
 
-int		checkFlag(char c, char *flagList)
-{
-	int i = 0;
-
-	while (flagList && flagList[i])
-	{
-		if (flagList[i] == c)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-void	print64(t_symbol64 **symb, unsigned long size, char *flagList)
-{
-	int aFlag = 0;
-	int gFlag = 0;
-	int uFlag = 0;
-
-	if (checkFlag('a', flagList))
-		aFlag = 1;
-	if (checkFlag('g', flagList))
-		gFlag = 1;
-	if (checkFlag('u', flagList))
-		uFlag = 1;
-
-	if (!checkFlag('r', flagList))
-	{
-		unsigned long i = 0;
-		while(i < size)
-		{
-			if (uFlag == 1)
-			{
-				if (symb[i]->type != 'U' && symb[i]->type != 'w')
-				{
-					i++;
-					continue;
-				}
-			}
-			else if (gFlag == 1)
-			{
-				if (symb[i]->type >= 97 && symb[i]->type <= 122 && symb[i]->type != 'w')
-				{
-					i++;
-					continue;
-				}
-			}
-			else if (aFlag)
-				;
-			if (symb[i]->type != 'w' && symb[i]->type != 'W' && symb[i]->type != 'U')
-				!symb[i]->value ? write(1, "0000000000000000", 16) : write(1, symb[i]->value, 16);
-			else
-				!symb[i]->value ? write(1, "                ", 16) : write(1, symb[i]->value, 16);
-			write(1, " ", 1);
-			write(1, &symb[i]->type, 1);
-			write(1, " ", 1);
-			write(1, symb[i]->name, ft_strlen(symb[i]->name));
-			write(1, "\n", 1);
-			i++;
-		}
-	}
-	else
-	{
-		long i = size - 1;
-		while(i >= 0)
-		{
-			if (uFlag == 1)
-			{
-				if (symb[i]->type != 'U' && symb[i]->type != 'w')
-				{
-					i++;
-					continue;
-				}
-			}
-			else if (gFlag == 1)
-			{
-				if (symb[i]->type >= 97 && symb[i]->type <= 122 && symb[i]->type != 'w')
-				{
-					i++;
-					continue;
-				}
-			}
-			else if (aFlag)
-				;
-			if (symb[i]->type != 'w' && symb[i]->type != 'W' && symb[i]->type != 'U')
-				!symb[i]->value ? write(1, "0000000000000000", 16) : write(1, symb[i]->value, 16);
-			else
-				!symb[i]->value ? write(1, "                ", 16) : write(1, symb[i]->value, 16);
-			write(1, " ", 1);
-			write(1, &symb[i]->type, 1);
-			write(1, " ", 1);
-			write(1, symb[i]->name, ft_strlen(symb[i]->name));
-			write(1, "\n", 1);
-			i--;
-		}
-	}
-}
-
-int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList)
+int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename, int multiFile)
 {
 	Elf64_Shdr	*sections = (Elf64_Shdr *)(map_start + header->e_shoff);
 
@@ -133,7 +35,13 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList)
 
 	if (!checkFlag('p', flagList))
 		sortSymb64(symb, trueSize);
-	print64(symb, trueSize, flagList);
+	if (multiFile > 1)
+	{
+		write(1, "\n", 1);
+		write(1, filename, ft_strlen(filename));
+		write(1, ":\n", 2);
+	}
+	displaySymb64(symb, trueSize, flagList);
 
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
@@ -147,9 +55,8 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList)
 	return (0);
 }
 
-int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList)
+int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename, int multiFile)
 {
-	(void)flagList;
 	Elf32_Shdr *sections = (Elf32_Shdr *)(map_start + header->e_shoff);
 
 	int shstrtabIdx = header->e_shstrndx;
@@ -178,22 +85,16 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList)
 		return (1);
 	}
 
-	unsigned long i = 0;
 	unsigned long trueSize = trueSymbSize32(symtab, nbr_entry);
-	sortSymb32(symb, trueSize);
-	while(i < trueSize)
+	if (!checkFlag('p', flagList))
+		sortSymb32(symb, trueSize);
+	if (multiFile > 1)
 	{
-		if (symb[i]->type != 'w' && symb[i]->type != 'W' && symb[i]->type != 'U')
-			!symb[i]->value ? write(1, "00000000", 8) : write(1, symb[i]->value, 8);
-		else
-			!symb[i]->value ? write(1, "        ", 8) : write(1, symb[i]->value, 8);
-		write(1, " ", 1);
-		write(1, &symb[i]->type, 1);
-		write(1, " ", 1);
-		write(1, symb[i]->name, ft_strlen(symb[i]->name));
 		write(1, "\n", 1);
-		i++;
+		write(1, filename, ft_strlen(filename));
+		write(1, ":\n", 2);
 	}
+	displaySymb32(symb, trueSize, flagList);
 
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
@@ -218,11 +119,10 @@ int isFLag(char c, char *allowedFlag)
 	return (0);
 }
 
-int initWithArgs(char **flagList, int *file_idx, char **argv, int argc)
+int initWithArgs(char **flagList, int *file_idx, int *nbrFile, char **argv, int argc)
 {
 	char allowedFlag[] = "agurp";
 	int i = 1;
-	(void)argc;
 	char *str = NULL;
 	while (i < argc)
 	{
@@ -234,7 +134,7 @@ int initWithArgs(char **flagList, int *file_idx, char **argv, int argc)
 				return (free(str), 0);
 		}
 		else
-			*file_idx = i;
+			file_idx[(*nbrFile)++] = i;
 		i++;
 	}
 
@@ -249,21 +149,10 @@ int initWithArgs(char **flagList, int *file_idx, char **argv, int argc)
 	return (1);
 }
 
-int main(int argc, char **argv)
+int nmLoop(char *filename, char *flagList, int multiFile)
 {
 	struct stat fdstat;
-	int file_idx = -1;
-
-	char *flagList = NULL;
-
-	if (initWithArgs(&flagList, &file_idx, argv, argc) == 0)
-	{
-		free(flagList);
-		write(2, "Invalid flag\n", 14);
-		return (0);
-	}
-
-	int fd = file_idx != -1 ? open(argv[file_idx], O_RDONLY) : open("a.out", O_RDONLY);
+	int fd = open(filename, O_RDONLY);
 	if (fd == -1)
 	{
 		perror("open");
@@ -294,17 +183,44 @@ int main(int argc, char **argv)
 		write(1, "File is not in ELF format.\n", 28);
 	}
 	if (header->e_ident[EI_CLASS] == 2)
-		nmElf64(header, map_start, flagList);
+		nmElf64(header, map_start, flagList, filename, multiFile);
 	else if (header->e_ident[EI_CLASS] == 1)
-		nmElf32((Elf32_Ehdr *)map_start, map_start, flagList);
+		nmElf32((Elf32_Ehdr *)map_start, map_start, flagList, filename, multiFile);
 	else
 		write(1, "Undefined ELF format.\n", 23);
-
-	free(flagList);
 	if (munmap(map_start, fdstat.st_size) == -1)
 	{
 		perror("munmap");
 		return(1);
 	}
+	return (0);
+}
+
+int main(int argc, char **argv)
+{
+	int	nbrFile = 0;
+	
+	int *file_idx = NULL;
+	char *flagList = NULL;
+
+	file_idx = ft_calloc(argc, sizeof(int));
+	if (!file_idx)
+		return (0);
+
+	if (initWithArgs(&flagList, file_idx, &nbrFile, argv, argc) == 0)
+	{
+		free(flagList);
+		free(file_idx);
+		write(2, "Invalid flag\n", 14);
+		return (0);
+	}
+
+	int i = 0;
+	if (nbrFile == 0)
+		nmLoop("a.out", flagList, 0);
+	while (i < nbrFile)
+		nmLoop(argv[file_idx[i++]], flagList, nbrFile);
+	free(flagList);
+	free(file_idx);
 	return (0);
 }
