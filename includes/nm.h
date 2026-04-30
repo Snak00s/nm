@@ -39,7 +39,7 @@ typedef struct symbol32 {
 char			*symbValueFormat64(uint64_t symbValue);
 unsigned long	trueSymbSize64(Elf64_Sym *symtab, unsigned long nbr_entry);
 t_symbol64		**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry);
-void			sortSymb64(t_symbol64 **symb, unsigned long size);
+void			sortSymb64(t_symbol64 **symb, unsigned long size, int rFlag);
 char			symbType64(t_symbol64 *symb, Elf64_Shdr *sections);
 void			displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList);
 
@@ -48,7 +48,7 @@ void			displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList);
 char			*symbValueFormat32(uint32_t symbValue);
 unsigned long	trueSymbSize32(Elf32_Sym *symtab, unsigned long nbr_entry);
 t_symbol32		**symbCreate32(Elf32_Sym *symtab, Elf32_Sym *strtab, Elf32_Shdr *sections, unsigned long nbr_entry);
-void			sortSymb32(t_symbol32 **symb, unsigned long size);
+void			sortSymb32(t_symbol32 **symb, unsigned long size, int rFlag);
 char			symbType32(t_symbol32 *symb, Elf32_Shdr *sections);
 void			displaySymb32(t_symbol32 **symb, unsigned long size, char *flagList);
 
@@ -60,7 +60,7 @@ void			swapSymb(void **symb1, void **symb2);
 int				ft_strncmpletter(const char *s1, const char *s2, size_t n);
 int				cmpType(unsigned char c1, unsigned char c2);
 int				checkFlag(char c, char *flagList);
-void			checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag);
+void			checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag, int *pFlag);
 int				applyFlags(unsigned char c, int gFlag, int uFlag);
 
 #endif

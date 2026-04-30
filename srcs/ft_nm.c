@@ -34,7 +34,7 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry);
 
 	if (!checkFlag('p', flagList))
-		sortSymb64(symb, trueSize);
+		sortSymb64(symb, trueSize, checkFlag('r', flagList));
 	if (multiFile > 1)
 	{
 		write(1, "\n", 1);
@@ -45,8 +45,10 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
-		free(symb[j]->name);
-		free(symb[j]->lowTrimName);
+		if (symb[j]->name)
+			free(symb[j]->name);
+		if ((symb[j]->lowTrimName))
+			free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);
@@ -87,7 +89,7 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename,
 
 	unsigned long trueSize = trueSymbSize32(symtab, nbr_entry);
 	if (!checkFlag('p', flagList))
-		sortSymb32(symb, trueSize);
+		sortSymb32(symb, trueSize, checkFlag('r', flagList));
 	if (multiFile > 1)
 	{
 		write(1, "\n", 1);
@@ -98,8 +100,10 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename,
 
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
-		free(symb[j]->name);
-		free(symb[j]->lowTrimName);
+		if (symb[j]->name)
+			free(symb[j]->name);
+		if ((symb[j]->lowTrimName))
+			free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);

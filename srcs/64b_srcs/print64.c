@@ -4,8 +4,10 @@ static void printSymb(t_symbol64 *symb)
 {
 	if (symb->type != 'w' && symb->type != 'W' && symb->type != 'U')
 		!symb->value ? write(1, "0000000000000000", 16) : write(1, symb->value, 16);
-	else
+	else if (symb->type != 'U')
 		!symb->value ? write(1, "                ", 16) : write(1, symb->value, 16);
+	else
+		write(1, "                ", 16);
 	write(1, " ", 1);
 	write(1, &symb->type, 1);
 	write(1, " ", 1);
@@ -19,9 +21,10 @@ void	displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList)
 	int gFlag = 0;
 	int uFlag = 0;
 	int rFlag = 0;
+	int pFlag = 0;
 
-	checkFlag2(flagList, &aFlag, &uFlag, &gFlag, &rFlag);
-	if (!rFlag)
+	checkFlag2(flagList, &aFlag, &uFlag, &gFlag, &rFlag, &pFlag);
+	if (pFlag || !rFlag)
 	{
 		unsigned long i = 0;
 		while(i < size)
@@ -40,7 +43,16 @@ void	displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList)
 			if (applyFlags(symb[i]->type, gFlag, uFlag))
 				i--;
 			else
-				printSymb(symb[i--]);
+			{
+				if (i - 1 >= 0 && !ft_strncmp(symb[i]->name, symb[i - 1]->name, ft_strlen(symb[i]->name)) && symb[i]->type == symb[i - 1]->type && symb[i]->rawValue > symb[i - 1]->rawValue)
+				{
+					printSymb(symb[i - 1]);
+					printSymb(symb[i--]);
+					i--;
+				}
+				else
+					printSymb(symb[i--]);
+			}
 		}
 	}
 }

@@ -46,9 +46,9 @@ int	ft_strncmpletter(const char *s1, const char *s2, size_t n)
 	while ((s1[i + s1_offset] || s2[i + s2_offset]) && s1[i + s1_offset] == s2[i + s2_offset] && i < n - 1)
 	{
 		i++;
-		if (s1[i + s1_offset] && !ft_isalnum(s1[i + s1_offset]))
+		while (s1[i + s1_offset] && !ft_isalnum(s1[i + s1_offset]))
 			s1_offset++;
-		if (s2[i + s2_offset] && !ft_isalnum(s2[i + s2_offset]))
+		while (s2[i + s2_offset] && !ft_isalnum(s2[i + s2_offset]))
 			s2_offset++;
 	}
 	return ((unsigned char)s1[i + s1_offset] - (unsigned char)s2[i + s2_offset]);
@@ -59,6 +59,8 @@ int		cmpType(unsigned char c1, unsigned char c2)
 	unsigned char c1Modif = c1;
 	unsigned char c2Modif = c2;
 
+	if (c1 == c2)
+		return (0);
 	if (c1Modif >= 65 && c1Modif <= 90)
 		c1Modif += 32;
 
@@ -83,7 +85,7 @@ int		checkFlag(char c, char *flagList)
 	return (0);
 }
 
-void	checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag)
+void	checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag, int *pFlag)
 {
 	int i = 0;
 
@@ -99,6 +101,8 @@ void	checkFlag2(char *flagList, int *aFlag, int *uFlag, int *gFlag, int *rFlag)
 		case 'g': *gFlag = 1;
 			break;
 		case 'r': *rFlag = 1;
+			break;
+		case 'p': *pFlag = 1;
 			break;
 		default:
 			break;

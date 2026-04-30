@@ -1,6 +1,6 @@
 #include"nm.h"
 
-void	sortSymb64(t_symbol64 **symb, unsigned long size)
+void	sortSymb64(t_symbol64 **symb, unsigned long size, int rFlag)
 {
 	unsigned long i = 0;
 	while (i < size)
@@ -17,7 +17,7 @@ void	sortSymb64(t_symbol64 **symb, unsigned long size)
 			{
 				if (cmpType(symb[i]->type, symb[j]->type))
 					swapSymb((void *)&symb[i], (void *)&symb[j]);
-				else if ((symb[i]->type == symb[j]->type) && (symb[i]->rawValue > symb[j]->rawValue))
+				else if ((symb[i]->type == symb[j]->type) && (symb[i]->rawValue > symb[j]->rawValue) && !rFlag)
 					swapSymb((void *)&symb[i], (void *)&symb[j]);
 			}
 			j++;

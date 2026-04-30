@@ -5,10 +5,11 @@ char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
 	char c = '?';
 
 	Elf64_Shdr sec = sections[symb->shndx];
-	// printf("\ntype : %d, flags : %ld, bind : %d %s\n", sec.sh_type, sec.sh_flags, ELF64_ST_BIND(symb->info), symb->name);
 
 	if (symb->shndx == SHN_ABS)
 		c = 'A';
+	else if (symb->shndx == SHN_COMMON)
+		c = 'C';
 	else if (sec.sh_type == SHT_NOBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.bss
 		c = 'B';
 	else if ((sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE))
