@@ -1,21 +1,21 @@
 #include "nm.h"
 
-unsigned long	trueSymbSize64(Elf64_Sym *symtab, unsigned long nbr_entry)
+unsigned long	trueSymbSize64(Elf64_Sym *symtab, unsigned long nbr_entry, int aFlag)
 {
 	unsigned long	size = 0;
 
 	for (unsigned long i = 1; i < nbr_entry; i++)
 	{
 		int type = ELF64_ST_TYPE(symtab[i].st_info);
-		if (type != SHT_STRTAB && type != SHT_RELA)
+		if (aFlag || (type != SHT_STRTAB && type != SHT_RELA))
 			size++;
 	}
 	return (size);
 }
 
-t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry)
+t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry, int aFlag)
 {
-	t_symbol64 **ret = ft_calloc(trueSymbSize64(symtab, nbr_entry), sizeof(t_symbol64 *));
+	t_symbol64 **ret = ft_calloc(trueSymbSize64(symtab, nbr_entry, aFlag), sizeof(t_symbol64 *));
 	if (!ret)
 		return (NULL);
 
@@ -24,7 +24,7 @@ t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sect
 	for (unsigned long i = 1; i < nbr_entry; i++)
 	{
 		int type = ELF64_ST_TYPE(symtab[i].st_info);
-		if (type != SHT_STRTAB && type != SHT_RELA)
+		if (aFlag || (type != SHT_STRTAB && type != SHT_RELA))
 		{
 			ret[ret_idx] = ft_calloc(1, sizeof(t_symbol64));
 			if (!ret[ret_idx])

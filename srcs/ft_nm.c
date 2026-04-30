@@ -24,14 +24,14 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 		}
 	}
 
-	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry);
+	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry, checkFlag('a', flagList));
 	if (!symb)
 	{
 		write(2, "symbCreate64 error.\n", 19);
 		return (1);
 	}
 
-	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry);
+	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry, checkFlag('a', flagList));
 
 	if (!checkFlag('p', flagList))
 		sortSymb64(symb, trueSize, checkFlag('r', flagList));
@@ -80,14 +80,14 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename,
 		}
 	}
 
-	t_symbol32 **symb = symbCreate32(symtab, strtab, sections, nbr_entry);
+	t_symbol32 **symb = symbCreate32(symtab, strtab, sections, nbr_entry, checkFlag('a', flagList));
 	if (!symb)
 	{
 		write(2, "symbCreate32 error.\n", 19);
 		return (1);
 	}
 
-	unsigned long trueSize = trueSymbSize32(symtab, nbr_entry);
+	unsigned long trueSize = trueSymbSize32(symtab, nbr_entry, checkFlag('a', flagList));
 	if (!checkFlag('p', flagList))
 		sortSymb32(symb, trueSize, checkFlag('r', flagList));
 	if (multiFile > 1)

@@ -1,16 +1,32 @@
 #include "nm.h"
 
+static char bindingConversion(t_symbol32 *symb, char c)
+{
+	if (ELF32_ST_BIND(symb->info) == STB_WEAK) //can be an weak object (v) or weak symbol (w) 
+	{
+		if (ELF32_ST_TYPE(symb->info) == STT_OBJECT)
+			c = (symb->shndx == SHN_UNDEF ? 'v' : 'V');
+		else
+			c = (symb->shndx == SHN_UNDEF ? 'w' : 'W');
+	}
+
+	if (c != '?' && ELF32_ST_BIND(symb->info) == STB_LOCAL)
+		c += 32;
+	return (c);
+}
+
 char	symbType32(t_symbol32 *symb, Elf32_Shdr *sections)
 {
 	char c = '?';
 
+	if (symb->shndx == SHN_ABS)
+		return (bindingConversion(symb, 'A'));
+	else if (symb->shndx == SHN_COMMON)
+		return (bindingConversion(symb, 'C'));
+
 	Elf32_Shdr sec = sections[symb->shndx];
 
-	if (symb->shndx == SHN_ABS)
-		c = 'A';
-	else if (symb->shndx == SHN_COMMON)
-		c = 'C';
-	else if (sec.sh_type == SHT_NOBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.bss
+	if (sec.sh_type == SHT_NOBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.bss
 		c = 'B';
 	else if ((sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE))
 		|| sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY || sec.sh_type == SHT_DYNAMIC) //.data ou .data1
@@ -24,15 +40,6 @@ char	symbType32(t_symbol32 *symb, Elf32_Shdr *sections)
 	else
 		c = 'U'; //unknown
 
-	if (ELF32_ST_BIND(symb->info) == STB_WEAK) //can be an weak object (v) or weak symbol (w) 
-	{
-		if (ELF32_ST_TYPE(symb->info) == STT_OBJECT)
-			c = (symb->shndx == SHN_UNDEF ? 'v' : 'V');
-		else
-			c = (symb->shndx == SHN_UNDEF ? 'w' : 'W');
-	}
-
-	if (c != '?' && ELF32_ST_BIND(symb->info) == STB_LOCAL)
-		c += 32;
+	c = bindingConversion(symb, c);
 	return (c);
 }
