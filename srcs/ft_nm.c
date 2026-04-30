@@ -163,32 +163,37 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 		error = ft_strjoin_free(error, "\'");
 		perror(error);
 		free(error);
-		exit(1);
+		return(1);
 	}
 
 	if (fstat(fd, &fdstat) == -1)
 	{
 		perror("fstat");
-		exit(1);
+		return(1);
 	}
 
 	void *map_start = mmap(NULL, fdstat.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (map_start == MAP_FAILED)
 	{
 		perror("mmap");
-		exit(1);
+		return(1);
 	}
 	if (close(fd) == -1)
 	{
 		perror("close");
 		munmap(map_start, fdstat.st_size);
-		exit(1);
+		return(1);
 	}
 
 	Elf64_Ehdr	*header = (Elf64_Ehdr *)map_start;
 	if (ft_memcmp(header->e_ident, ELFMAG, 4) != 0) {
-		write(1, "File is not in ELF format.\n", 28);
+		char *error = ft_strjoin("ft_nm: ", filename);
+		error = ft_strjoin_free(error, ": file format not recognized\n");
+		write(2, error, ft_strlen(error));
+		free(error);
+		return (1);
 	}
+
 	if (header->e_ident[EI_CLASS] == 2)
 		nmElf64(header, map_start, flagList, filename, multiFile);
 	else if (header->e_ident[EI_CLASS] == 1)
@@ -198,7 +203,7 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 	if (munmap(map_start, fdstat.st_size) == -1)
 	{
 		perror("munmap");
-		exit(1);
+		return(1);
 	}
 	return (0);
 }
@@ -233,11 +238,14 @@ Usage: nm [option(s)] [file(s)]\n \
 	}
 
 	int i = 0;
+	int ret = 0;
 	if (nbrFile == 0)
-		nmLoop("a.out", flagList, 0);
-	while (i < nbrFile)
-		nmLoop(argv[file_idx[i++]], flagList, nbrFile);
+		ret = nmLoop("a.out", flagList, 0);
+	while (i < nbrFile && ret == 0)
+		ret = nmLoop(argv[file_idx[i++]], flagList, nbrFile);
 	free(flagList);
 	free(file_idx);
+	if (ret != 0)
+		exit(1);
 	return (0);
 }
