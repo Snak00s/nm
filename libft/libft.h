@@ -6,7 +6,7 @@
 /*   By: tpinton <tpinton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/12 18:03:38 by tpinton           #+#    #+#             */
-/*   Updated: 2026/04/27 16:21:26 by tpinton          ###   ########.fr       */
+/*   Updated: 2026/06/22 17:01:04 by tpinton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include<ctype.h>
 # include<fcntl.h>
 # include<stdint.h>
+# include"ft_printf.h"
 
 typedef struct s_list
 {
@@ -71,4 +72,10 @@ void	ft_lstdelone(t_list *lst, void (*del)(void *));
 void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstiter(t_list *lst, void (*f)(void *));
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
+char	*ft_strcapitalize(char *str);
+char	*ft_strdecapitalize(char *str);
+uint64_t	ft_swapLongEndian(uint64_t nbr);
+uint32_t	ft_swapIntEndian(uint32_t nbr);
+uint16_t	ft_swapShortEndian(uint16_t nbr);
+
 #endif

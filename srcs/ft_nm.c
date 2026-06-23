@@ -153,6 +153,28 @@ int initWithArgs(char **flagList, int *file_idx, int *nbrFile, char **argv, int 
 	return (1);
 }
 
+int	check_ehdr_error(void *map_start, unsigned long file_size)
+{
+
+	if (((Elf64_Ehdr *)map_start)->e_ident[EI_CLASS] == 2)
+	{
+		Elf64_Ehdr *header = (Elf64_Ehdr *)map_start;
+		if ((unsigned long)header->e_phoff > file_size
+			|| (unsigned long)header->e_shoff > file_size
+			|| header->e_shnum == 0)
+			return (0);
+	}
+	else
+	{
+		Elf32_Ehdr *header = (Elf32_Ehdr *)map_start;
+		if ((unsigned long)header->e_phoff > file_size
+			|| (unsigned long)header->e_shoff > file_size
+			|| header->e_shnum == 0)
+			return (0);
+	}
+	return(1);
+}
+
 int nmLoop(char *filename, char *flagList, int multiFile)
 {
 	struct stat fdstat;
@@ -186,7 +208,9 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 	}
 
 	Elf64_Ehdr	*header = (Elf64_Ehdr *)map_start;
-	if (ft_memcmp(header->e_ident, ELFMAG, 4) != 0) {
+	if (ft_memcmp(header->e_ident, ELFMAG, 4) != 0
+		|| !check_ehdr_error(map_start, fdstat.st_size))
+	{
 		char *error = ft_strjoin("ft_nm: ", filename);
 		error = ft_strjoin_free(error, ": file format not recognized\n");
 		write(2, error, ft_strlen(error));
