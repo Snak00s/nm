@@ -2,18 +2,13 @@ NAME = ft_nm
 
 CC = cc -Wall -Werror -Wextra -g -Iincludes/
 
-SRCS = srcs/ft_nm.c \
+SRCS = srcs/main.c \
 		srcs/utils.c \
-		srcs/64b_srcs/convertFormat64.c \
-		srcs/64b_srcs/sortSymb64.c \
-		srcs/64b_srcs/symb64.c \
-		srcs/64b_srcs/symbType64.c \
-		srcs/64b_srcs/print64.c \
-		srcs/32b_srcs/convertFormat32.c \
-		srcs/32b_srcs/sortSymb32.c \
-		srcs/32b_srcs/symb32.c \
-		srcs/32b_srcs/symbType32.c \
-		srcs/32b_srcs/print32.c
+		srcs/convertFormat.c \
+		srcs/sortSymb.c \
+		srcs/symb.c \
+		srcs/symbType.c \
+		srcs/print.c
 
 OBJ_DIR = obj
 OBJ = $(SRCS:%.c=$(OBJ_DIR)/%.o)

@@ -34,7 +34,7 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry, checkFlag('a', flagList));
 
 	if (!checkFlag('p', flagList))
-		sortSymb64(symb, trueSize, checkFlag('r', flagList));
+		sortSymb64(symb, trueSize);
 	if (multiFile > 1)
 	{
 		write(1, "\n", 1);
@@ -89,7 +89,7 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename,
 
 	unsigned long trueSize = trueSymbSize32(symtab, nbr_entry, checkFlag('a', flagList));
 	if (!checkFlag('p', flagList))
-		sortSymb32(symb, trueSize, checkFlag('r', flagList));
+		sortSymb32(symb, trueSize);
 	if (multiFile > 1)
 	{
 		write(1, "\n", 1);
@@ -234,6 +234,7 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 
 int main(int argc, char **argv)
 {
+	setlocale(LC_ALL, "");
 	int	nbrFile = 0;
 	
 	int *file_idx = NULL;
