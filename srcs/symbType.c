@@ -70,7 +70,8 @@ char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
 
 	Elf64_Shdr sec = sections[symb->shndx];
 
-	if (sec.sh_type == SHT_NOBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE)) //.bss
+	if (sec.sh_type == SHT_NOBITS && (sec.sh_flags == (SHF_ALLOC | SHF_WRITE) //.bss
+		|| sec.sh_flags == (SHF_ALLOC | SHF_WRITE | SHF_TLS)))
 		c = 'B';
 	else if ((sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE))
 		|| sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY || sec.sh_type == SHT_DYNAMIC) //.data ou .data1
@@ -81,6 +82,8 @@ char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
 		c = 'T';
 	else if (sec.sh_type == SHT_NOTE) //.note
 		c = 'R';
+	else if (sec.sh_flags == SHF_ALLOC)
+		c = 'N';
 	else
 		c = 'U'; //unknown
 

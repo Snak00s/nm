@@ -8,7 +8,7 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 	if (header->e_shstrndx >= SHN_LORESERVE)
 		shstrtabIdx = sections[0].sh_link;
 
-	Elf64_Sym *shstrtab = (map_start + sections[shstrtabIdx].sh_offset);
+	Elf64_Shdr *shstrtab = (map_start + sections[shstrtabIdx].sh_offset);
 
 	Elf64_Sym *symtab = NULL;
 	Elf64_Sym *strtab = NULL;
@@ -24,14 +24,15 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 		}
 	}
 
-	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry, checkFlag('a', flagList));
+	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry, checkFlag('a', flagList));
+
+	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry, shstrtab, checkFlag('a', flagList));
 	if (!symb)
 	{
 		write(2, "symbCreate64 error.\n", 19);
 		return (1);
 	}
 
-	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry, checkFlag('a', flagList));
 
 	if (!checkFlag('p', flagList))
 		sortSymb64(symb, trueSize);
@@ -45,10 +46,6 @@ int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename,
 
 	for (unsigned long j = 0; j < trueSize; j++)
 	{
-		if (symb[j]->name)
-			free(symb[j]->name);
-		if ((symb[j]->lowTrimName))
-			free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);
@@ -102,8 +99,6 @@ int	nmElf32(Elf32_Ehdr *header, void *map_start, char *flagList, char *filename,
 	{
 		if (symb[j]->name)
 			free(symb[j]->name);
-		if ((symb[j]->lowTrimName))
-			free(symb[j]->lowTrimName);
 		if (symb[j]->value)
 			free(symb[j]->value);
 		free(symb[j]);
