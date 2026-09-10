@@ -3,45 +3,45 @@
 int nmElf64(Elf64_Ehdr *header, void *map_start, char *flagList, char *filename, int multiFile)
 {
 	Elf64_Shdr	*sections = (Elf64_Shdr *)(map_start + header->e_shoff);
+	
+	int shstrtabIdx = (header->e_shstrndx >= SHN_LORESERVE) ? shstrtabIdx = sections[0].sh_link : header->e_shstrndx;
 
-	int shstrtabIdx = header->e_shstrndx;
-	if (header->e_shstrndx >= SHN_LORESERVE)
-		shstrtabIdx = sections[0].sh_link;
+	Elf64_Shdr	*shstrtab = (map_start + sections[shstrtabIdx].sh_offset);
+	Elf64_Sym	*symtab = NULL;
+	Elf64_Sym	*strtab = NULL;
 
-	Elf64_Shdr *shstrtab = (map_start + sections[shstrtabIdx].sh_offset);
-
-	Elf64_Sym *symtab = NULL;
-	Elf64_Sym *strtab = NULL;
+	//looking for mandatory section
 	unsigned long nbr_entry = 0;
 	for (int i = 0; i < header->e_shnum; i++)
 	{
-		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".strtab", ft_strlen(".strtab")))
+		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".strtab", ft_strlen(".strtab"))) //strtab is used to gather symbol name
 			strtab = map_start + sections[i].sh_offset;
-		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".symtab", ft_strlen(".symtab")))
+		if (!ft_strncmp((char *)shstrtab + sections[i].sh_name, ".symtab", ft_strlen(".symtab"))) //symtab contain every symbol entry
 		{
 			symtab = map_start + sections[i].sh_offset;
 			nbr_entry = sections[i].sh_size / sections[i].sh_entsize;
 		}
 	}
 
+	//the amount of symbol depends on flag and file condition
 	unsigned long trueSize = trueSymbSize64(symtab, nbr_entry, checkFlag('a', flagList));
 
-	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry, shstrtab, checkFlag('a', flagList));
+	//create the tab of symb
+	t_symbol64 **symb = symbCreate64(symtab, strtab, sections, nbr_entry, shstrtab, trueSize, header->e_shnum, checkFlag('a', flagList));
 	if (!symb)
 	{
 		write(2, "symbCreate64 error.\n", 19);
 		return (1);
 	}
 
-
+	//sort the symb depending on the LC_ALL (see strcoll)
 	if (!checkFlag('p', flagList))
 		sortSymb64(symb, trueSize);
+
 	if (multiFile > 1)
-	{
-		write(1, "\n", 1);
-		write(1, filename, ft_strlen(filename));
-		write(1, ":\n", 2);
-	}
+		ft_printf("\n%s:\n", filename);
+
+	//display like nm
 	displaySymb64(symb, trueSize, flagList);
 
 	for (unsigned long j = 0; j < trueSize; j++)
@@ -219,6 +219,7 @@ int nmLoop(char *filename, char *flagList, int multiFile)
 		nmElf32((Elf32_Ehdr *)map_start, map_start, flagList, filename, multiFile);
 	else
 		write(1, "Undefined ELF format.\n", 23);
+
 	if (munmap(map_start, fdstat.st_size) == -1)
 	{
 		perror("munmap");
@@ -266,6 +267,6 @@ Usage: nm [option(s)] [file(s)]\n \
 	free(flagList);
 	free(file_idx);
 	if (ret != 0)
-		exit(1);
+		return(1);
 	return (0);
 }

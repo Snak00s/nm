@@ -37,7 +37,8 @@ typedef struct symbol32 {
 
 char			*symbValueFormat64(uint64_t symbValue);
 unsigned long	trueSymbSize64(Elf64_Sym *symtab, unsigned long nbr_entry, int aFlag);
-t_symbol64		**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry, Elf64_Shdr *shstrtab, int aFlag);
+t_symbol64		**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry, Elf64_Shdr *shstrtab, unsigned long trueSize, int shmax, int aFlag);
+
 void			sortSymb64(t_symbol64 **symb, unsigned long size);
 char			symbType64(t_symbol64 *symb, Elf64_Shdr *sections);
 void			displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList);

@@ -58,9 +58,10 @@ unsigned long	trueSymbSize64(Elf64_Sym *symtab, unsigned long nbr_entry, int aFl
 	return (size);
 }
 
-t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections, unsigned long nbr_entry, Elf64_Shdr *shstrtab, int aFlag)
+t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sections,
+	unsigned long nbr_entry, Elf64_Shdr *shstrtab, unsigned long trueSize, int shmax, int aFlag)
 {
-	t_symbol64 **ret = ft_calloc(trueSymbSize64(symtab, nbr_entry, aFlag), sizeof(t_symbol64 *));
+	t_symbol64 **ret = ft_calloc(trueSize, sizeof(t_symbol64 *));
 	if (!ret)
 		return (NULL);
 
@@ -74,18 +75,15 @@ t_symbol64	**symbCreate64(Elf64_Sym *symtab, Elf64_Sym *strtab, Elf64_Shdr *sect
 			ret[ret_idx] = ft_calloc(1, sizeof(t_symbol64));
 			if (!ret[ret_idx])
 				return (NULL);
+
 			ret[ret_idx]->name = (char *)strtab + symtab[i].st_name;
-			if (!ft_strlen(ret[ret_idx]->name))
-			{
-				if (symtab[i].st_shndx < 41)
-				{
-					Elf64_Shdr	*sec = &sections[symtab[i].st_shndx];
-					ret[ret_idx]->name = (char *)shstrtab + sec->sh_name;
-				}
-			}
+			if (!ft_strlen(ret[ret_idx]->name) && symtab[i].st_shndx < shmax)
+				ret[ret_idx]->name = (char *)shstrtab + (&sections[symtab[i].st_shndx])->sh_name;
+
 			ret[ret_idx]->value = symbValueFormat64(symtab[i].st_value);
 			if (symtab[i].st_value != 0 && !ret[ret_idx]->value)
 				return (NULL);
+
 			ret[ret_idx]->rawValue = symtab[i].st_value;
 			ret[ret_idx]->info = symtab[i].st_info;
 			ret[ret_idx]->shndx = symtab[i].st_shndx;
