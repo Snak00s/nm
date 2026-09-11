@@ -47,7 +47,8 @@ char	symbType32(t_symbol32 *symb, Elf32_Shdr *sections)
 		c = 'D';
 	else if (isTypeGNU(sec.sh_type) || sec.sh_type == SHT_RELA
 		|| sec.sh_type == SHT_DYNSYM || sec.sh_type == SHT_STRTAB
-		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC)) // .rodata .rodata1
+		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC)
+		|| (sec.sh_type == SHT_REL && sec.sh_flags == SHF_ALLOC)) // .rodata .rodata1
 		c = 'R';
 	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // .text
 		c = 'T';
@@ -101,7 +102,8 @@ char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
 		c = 'D';
 	else if (isTypeGNU(sec.sh_type) || sec.sh_type == SHT_RELA
 		|| sec.sh_type == SHT_DYNSYM || sec.sh_type == SHT_STRTAB
-		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC)) // .rodata .rodata1
+		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC)
+		|| (sec.sh_type == SHT_REL && sec.sh_flags == SHF_ALLOC)) // .rodata .rodata1
 		c = 'R';
 	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // .text
 		c = 'T';

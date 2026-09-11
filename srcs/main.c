@@ -151,7 +151,6 @@ int initWithArgs(char **flagList, int *file_idx, int *nbrFile, char **argv, int 
 
 int	check_ehdr_error(void *map_start, unsigned long file_size)
 {
-
 	if (((Elf64_Ehdr *)map_start)->e_ident[EI_CLASS] == 2)
 	{
 		Elf64_Ehdr *header = (Elf64_Ehdr *)map_start;
