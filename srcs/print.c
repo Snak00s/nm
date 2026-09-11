@@ -101,12 +101,28 @@ void	displaySymb64(t_symbol64 **symb, unsigned long size, char *flagList)
 				i--;
 			else
 			{
-				if (i - 1 >= 0 && !ft_strncmp(symb[i]->name, symb[i - 1]->name, ft_strlen(symb[i]->name)) && symb[i]->type == symb[i - 1]->type && symb[i]->rawValue > symb[i - 1]->rawValue)
+				int j = i;
+				while (j - 1 >= 0 && !strcoll(symb[j]->name, symb[j - 1]->name))
+					j--;
+				if (j != i)
 				{
-					printSymb64(symb[i - 1]);
-					printSymb64(symb[i--]);
-					i--;
+					int g = i - j;
+					while (j != i)
+					{
+						if (!applyFlags(symb[j]->type, gFlag, uFlag))
+							printSymb64(symb[j]);
+						j++;
+					}
+					if (!applyFlags(symb[j]->type, gFlag, uFlag))
+						printSymb64(symb[j]);
+					i -= g + 1;
 				}
+				// if (i - 1 >= 0 && !strcoll(symb[i]->name, symb[i - 1]->name) && symb[i]->type == symb[i - 1]->type && symb[i]->rawValue > symb[i - 1]->rawValue)
+				// {
+				// 	printSymb64(symb[i - 1]);
+				// 	printSymb64(symb[i--]);
+				// 	i--;
+				// }
 				else
 					printSymb64(symb[i--]);
 			}

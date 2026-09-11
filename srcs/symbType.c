@@ -54,9 +54,19 @@ static char bindingConversion64(t_symbol64 *symb, char c)
 			c = (symb->shndx == SHN_UNDEF ? 'w' : 'W');
 	}
 
+	if (ELF64_ST_TYPE(symb->info) == STT_GNU_IFUNC)
+		c = 'i';
+
 	if (c != '?' && ELF64_ST_BIND(symb->info) == STB_LOCAL)
 		c += 32;
 	return (c);
+}
+
+static int isTypeGNU(uint32_t type)
+{
+	if (type == SHT_GNU_ATTRIBUTES || type == SHT_GNU_HASH || type == SHT_GNU_LIBLIST || type == SHT_GNU_verdef || type == SHT_GNU_verneed || type == SHT_GNU_versym)
+		return (1);
+	return (0);
 }
 
 char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
@@ -74,19 +84,23 @@ char	symbType64(t_symbol64 *symb, Elf64_Shdr *sections)
 		|| sec.sh_flags == (SHF_ALLOC | SHF_WRITE | SHF_TLS)))
 		c = 'B';
 	else if ((sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE))
-		|| sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY || sec.sh_type == SHT_DYNAMIC) //.data ou .data1
+		|| sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY || sec.sh_type == SHT_DYNAMIC
+		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_WRITE | SHF_TLS))) //.data ou .data1
 		c = 'D';
-	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC) // .rodata .rodata1
+	else if (isTypeGNU(sec.sh_type) || sec.sh_type == SHT_RELA
+		|| sec.sh_type == SHT_DYNSYM || sec.sh_type == SHT_STRTAB
+		|| (sec.sh_type == SHT_PROGBITS && sec.sh_flags == SHF_ALLOC)) // .rodata .rodata1
 		c = 'R';
 	else if (sec.sh_type == SHT_PROGBITS && sec.sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) // .text
 		c = 'T';
 	else if (sec.sh_type == SHT_NOTE) //.note
 		c = 'R';
-	else if (sec.sh_flags == SHF_ALLOC)
+	else if (sec.sh_type == SHT_PROGBITS)
 		c = 'N';
 	else
 		c = 'U'; //unknown
 
-	c = bindingConversion64(symb, c);
+	if (ft_strncmp(symb->name, ".debug", ft_strlen(".debug")))
+		c = bindingConversion64(symb, c);
 	return (c);
 }
